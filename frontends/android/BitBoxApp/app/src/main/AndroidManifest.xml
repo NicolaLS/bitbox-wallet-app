@@ -34,7 +34,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <!-- launchMode: Makes sure that onIntent/onResume is reliably called on usb attached/detached events -->
+        <!-- Fixes crash when using the qr-scanner on some devices. -->
+        <!-- The frontends qr-scanner dependency (https://github.com/nimiq/qr-scanner) uses the Shape Detection API BarcodeDetector. -->
+        <!-- This automatically downloads the ML Kit barcode scanner model to the device after the app is installed from the Play Store. -->
+        <!-- See: https://developers.google.com/ml-kit/vision/barcode-scanning/android -->
+        <meta-data
+                android:name="com.google.mlkit.vision.DEPENDENCIES"
+                android:value="barcode"/>
+    <!-- launchMode: Makes sure that onIntent/onResume is reliably called on usb attached/detached events -->
         <!-- configChanges: Makes sure onCreate is not called on those changes, which prevents an ugly reload -->
         <activity
             android:name=".MainActivity"
