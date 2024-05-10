@@ -1,5 +1,6 @@
 /**
  * Copyright 2018 Shift Devices AG
+ * Copyright 2024 Shift Crypto AG
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,22 +15,60 @@
  * limitations under the License.
  */
 
+/*
 import { Component, createRef } from 'react';
 import { Input, Checkbox, Field } from './forms';
 import { alertUser } from './alert/Alert';
 import style from './password.module.css';
 import { withTranslation } from 'react-i18next';
+*/
+import { Input } from './forms';
 
-export function PasswordInput (props) {
-  const { seePlaintext, ...rest } = props;
-  return (
-    <Input
-      type={seePlaintext ? 'text' : 'password'}
-      {...rest}
-    />
-  );
+
+// We might want to split this into antoher file.
+
+type TPropsPasswordInput = {
+    seePlaintext: boolean;
+    [ key: string]: any;
 }
 
+export const PasswordInput = ({ seePlaintext, ...rest }: TPropsPasswordInput) => {
+    // Also, does 'rest' even make sense..? Why is it there, how is the component used.
+    // Maybe remove it?
+    return (
+      <Input
+        type={seePlaintext ? 'text' : 'password'}
+        {...rest}
+        />
+    );
+};
+
+
+// Thats the state you retard.
+/*
+type TProps = {
+    password: string;
+    seePlaintext: boolean;
+    capsLock: boolean;
+}
+*/
+type TProps = {
+    title: string;
+    label: string;
+    repeatLabel: string;
+    placeholder: string;
+    repeatPlacehoder: string;
+    disabled: boolean;
+    showLabel: boolean;
+    idPrefix: string;
+    pattern: string;
+    autoFocus: boolean;
+    // onChange funtion / callback
+    onValidPassowrd: any;
+}
+export const PasswordSingleInput = ({ title, label, repeatLabel, placeholder, repeatPlacehoder, disabled, showLabel, idPrefix, pattern, autoFocus, onValidPassowrd }: TProps) => {
+
+};
 class PasswordSingleInputClass extends Component {
   state = {
     password: '',
@@ -164,9 +203,7 @@ class PasswordRepeatInputClass extends Component {
     capsLock: false
   };
 
-    // boolean ref
   password = createRef();
-    // boolean ref
   passwordRepeat = createRef();
 
   idPrefix = () => {
