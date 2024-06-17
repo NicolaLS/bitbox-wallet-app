@@ -102,7 +102,7 @@ export const Transaction = ({
             </span>
             <span className={style.date}>{shortDate}</span>
           </div>
-          { note ? (
+          {note ? (
             <div className={parentStyle.activity}>
               <span className={style.address}>
                 {note}
@@ -152,7 +152,7 @@ export const Transaction = ({
               className={`${style.amount} ${style.amountOverflow}`}
               data-unit={` ${amount.unit}`}>
               {sign}
-              <Amount amount={amount.amount} unit={amount.unit}/>
+              <Amount amount={amount.amount} unit={amount.unit} />
               <span className={style.currencyUnit}>&nbsp;{amount.unit}</span>
             </span>
           </div>
@@ -222,7 +222,7 @@ export const Transaction = ({
               <label>{t('transaction.details.fiatAtTime')}</label>
               <p>
                 <span className={`${style.fiat} ${typeClassName}`}>
-                  { transactionInfo.amountAtTime ?
+                  {transactionInfo.amountAtTime ?
                     <FiatConversion amount={transactionInfo.amountAtTime} sign={sign} noAction />
                     :
                     <FiatConversion noAction />
@@ -235,7 +235,7 @@ export const Transaction = ({
               <p className={typeClassName}>
                 <span className={style.amount}>
                   {sign}
-                  <Amount amount={amount.amount} unit={amount.unit}/>
+                  <Amount amount={amount.amount} unit={amount.unit} />
                 </span>
                 {' '}
                 <span className={style.currencyUnit}>{transactionInfo.amount.unit}</span>
@@ -246,7 +246,7 @@ export const Transaction = ({
               {
                 transactionInfo.fee && transactionInfo.fee.amount ? (
                   <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>
-                    <Amount amount={transactionInfo.fee.amount} unit={transactionInfo.fee.unit}/>
+                    <Amount amount={transactionInfo.fee.amount} unit={transactionInfo.fee.unit} />
                     {' '}
                     <span className={style.currencyUnit}>{transactionInfo.fee.unit}</span>
                   </p>
@@ -258,7 +258,7 @@ export const Transaction = ({
             <div className={`${style.detail} ${style.addresses}`}>
               <label>{t('transaction.details.address')}</label>
               <div className={style.detailAddresses}>
-                { transactionInfo.addresses.map((address) => (
+                {transactionInfo.addresses.map((address) => (
                   <CopyableInput
                     key={address}
                     alignRight
@@ -266,7 +266,7 @@ export const Transaction = ({
                     flexibleHeight
                     className={style.detailAddress}
                     value={address} />
-                )) }
+                ))}
               </div>
             </div>
             {
