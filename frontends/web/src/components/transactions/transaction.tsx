@@ -29,15 +29,7 @@ import { Note } from './note';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
 import { Arrow } from './components/arrow';
-
-const parseTimeShort = (time: string, lang: string) => {
-  const options = {
-    year: 'numeric',
-    month: 'numeric',
-    day: 'numeric',
-  } as Intl.DateTimeFormatOptions;
-  return new Date(Date.parse(time)).toLocaleString(lang, options);
-};
+import { TxDate } from './components/date';
 
 type Props = {
   accountCode: accountApi.AccountCode;
@@ -78,7 +70,6 @@ export const Transaction = ({
 
   const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
   const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
-  const shortDate = time ? parseTimeShort(time, i18n.language) : '---';
   const statusText = t(`transaction.status.${status}`);
   const progress = numConfirmations < numConfirmationsComplete ? (numConfirmations / numConfirmationsComplete) * 100 : 100;
 
@@ -90,12 +81,11 @@ export const Transaction = ({
             txStatus={status}
             txType={type}
           />
-          <div className={parentStyle.date}>
-            <span className={style.columnLabel}>
-              {t('transaction.details.date')}:
-            </span>
-            <span className={style.date}>{shortDate}</span>
-          </div>
+          <TxDate
+            time={time}
+            label={t('transaction.details.date')}
+            lang={i18n.language}
+          />
           {note ? (
             <div className={parentStyle.activity}>
               <span className={style.address}>
@@ -202,10 +192,12 @@ export const Transaction = ({
                 </span>
               </p>
             </div>
-            <div className={style.detail}>
-              <label>{t('transaction.details.date')}</label>
-              <p>{shortDate}</p>
-            </div>
+            <TxDate
+              time={time}
+              label={t('transaction.details.date') + ':'}
+              lang={i18n.language}
+              detail
+            />
             <div className={style.detail}>
               <label>{t('transaction.details.fiat')}</label>
               <p>
