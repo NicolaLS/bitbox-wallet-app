@@ -20,7 +20,6 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
 import { A } from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
-import { ExpandIcon } from '../icon/icon';
 import { FiatConversion } from '../rates/rates';
 import { Amount } from '../../components/amount/amount';
 import parentStyle from './transactions.module.css';
@@ -31,6 +30,7 @@ import { TxNote } from './components/note';
 import { AddressOrTxID } from './components/address-or-txid';
 import { TxStatus } from './components/status';
 import { TxAmount } from './components/amount';
+import { ShowDetailsButton } from './components/show-details-button';
 
 type Props = {
   accountCode: accountApi.AccountCode;
@@ -95,11 +95,11 @@ export const Transaction = ({
               label={t(type === 'receive' ? 'transaction.tx.received' : 'transaction.tx.sent')}
             />
           )}
-          <div className={`${parentStyle.action} ${parentStyle.hideOnMedium}`}>
-            <button type="button" className={style.action} onClick={showDetails}>
-              <ExpandIcon expand={!transactionDialog} />
-            </button>
-          </div>
+          <ShowDetailsButton
+            onClick={showDetails}
+            expand={!transactionDialog}
+            hideOnMedium
+          />
         </div>
         <div className={parentStyle.columnGroup}>
           < TxStatus
@@ -117,11 +117,10 @@ export const Transaction = ({
             sign={sign}
             typeClassName={typeClassName}
           />
-          <div className={`${parentStyle.action} ${parentStyle.showOnMedium}`}>
-            <button type="button" className={style.action} onClick={showDetails}>
-              <ExpandIcon expand={!transactionDialog} />
-            </button>
-          </div>
+          <ShowDetailsButton
+            onClick={showDetails}
+            expand={!transactionDialog}
+          />
         </div>
       </div>
       {/*
