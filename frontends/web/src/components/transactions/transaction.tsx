@@ -20,16 +20,16 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
 import { A } from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
-import { CopyableInput } from '../copy/Copy';
 import { ExpandIcon } from '../icon/icon';
 import { ProgressRing } from '../progressRing/progressRing';
 import { FiatConversion } from '../rates/rates';
 import { Amount } from '../../components/amount/amount';
-import { Note } from './note';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
 import { Arrow } from './components/arrow';
 import { TxDate } from './components/date';
+import { TxNote } from './components/note';
+import { AddressOrTxID } from './components/address-or-txid';
 
 type Props = {
   accountCode: accountApi.AccountCode;
@@ -86,26 +86,15 @@ export const Transaction = ({
             label={t('transaction.details.date')}
             lang={i18n.language}
           />
-          {note ? (
-            <div className={parentStyle.activity}>
-              <span className={style.address}>
-                {note}
-              </span>
-            </div>
+          { note ? (
+            <TxNote
+              note={note}
+            />
           ) : (
-            <div className={parentStyle.activity}>
-              <span className={style.label}>
-                {t(type === 'receive' ? 'transaction.tx.received' : 'transaction.tx.sent')}
-              </span>
-              <span className={style.address}>
-                {addresses[0]}
-                {addresses.length > 1 && (
-                  <span className={style.badge}>
-                    (+{addresses.length - 1})
-                  </span>
-                )}
-              </span>
-            </div>
+            <AddressOrTxID
+              addresses={addresses}
+              label={t(type === 'receive' ? 'transaction.tx.received' : 'transaction.tx.sent')}
+            />
           )}
           <div className={`${parentStyle.action} ${parentStyle.hideOnMedium}`}>
             <button type="button" className={style.action} onClick={showDetails}>
@@ -159,10 +148,11 @@ export const Transaction = ({
         medium>
         {transactionInfo && (
           <>
-            <Note
+            <TxNote
               accountCode={accountCode}
               internalID={internalID}
               note={note}
+              details
             />
             <Arrow
               txStatus={status}
@@ -243,20 +233,11 @@ export const Transaction = ({
                 )
               }
             </div>
-            <div className={`${style.detail} ${style.addresses}`}>
-              <label>{t('transaction.details.address')}</label>
-              <div className={style.detailAddresses}>
-                {transactionInfo.addresses.map((address) => (
-                  <CopyableInput
-                    key={address}
-                    alignRight
-                    borderLess
-                    flexibleHeight
-                    className={style.detailAddress}
-                    value={address} />
-                ))}
-              </div>
-            </div>
+            <AddressOrTxID
+              label={t('transaction.details.address')}
+              addresses={transactionInfo.addresses}
+              detail
+            />
             {
               transactionInfo.gas ? (
                 <div className={style.detail}>
@@ -309,17 +290,12 @@ export const Transaction = ({
                 </div>
               ) : null
             }
-            <div className={`${style.detail} ${style.addresses}`}>
-              <label>{t('transaction.explorer')}</label>
-              <div className={style.detailAddresses}>
-                <CopyableInput
-                  alignRight
-                  borderLess
-                  flexibleHeight
-                  className={style.detailAddress}
-                  value={transactionInfo.txID} />
-              </div>
-            </div>
+
+            <AddressOrTxID
+              label={t('transaction.explorer')}
+              txid={transactionInfo.txID}
+              detail
+            />
             <div className={`${style.detail} flex-center`}>
               <A
                 href={explorerURL + transactionInfo.txID}
