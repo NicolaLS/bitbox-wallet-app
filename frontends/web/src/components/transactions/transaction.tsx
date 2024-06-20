@@ -20,7 +20,6 @@ import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
 import { A } from '../anchor/anchor';
 import { Dialog } from '../dialog/dialog';
-import { FiatConversion } from '../rates/rates';
 import { Amount } from '../../components/amount/amount';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
@@ -31,6 +30,7 @@ import { AddressOrTxID } from './components/address-or-txid';
 import { TxStatus } from './components/status';
 import { TxAmount } from './components/amount';
 import { ShowDetailsButton } from './components/show-details-button';
+import { TxFiat } from './components/fiat';
 
 type Props = {
   accountCode: accountApi.AccountCode;
@@ -107,11 +107,11 @@ export const Transaction = ({
             numConfirmations={numConfirmations}
             numConfirmationsComplete={numConfirmationsComplete}
           />
-          <div className={parentStyle.fiat}>
-            <span className={`${style.fiat} ${typeClassName}`}>
-              <FiatConversion amount={amount} sign={sign} noAction />
-            </span>
-          </div>
+          <TxFiat
+            amount={amount}
+            sign={sign}
+            typeClassName={typeClassName}
+          />
           <TxAmount
             amount={amount}
             sign={sign}
@@ -164,26 +164,21 @@ export const Transaction = ({
               lang={i18n.language}
               detail
             />
-            <div className={style.detail}>
-              <label>{t('transaction.details.fiat')}</label>
-              <p>
-                <span className={`${style.fiat} ${typeClassName}`}>
-                  <FiatConversion amount={amount} sign={sign} noAction />
-                </span>
-              </p>
-            </div>
-            <div className={style.detail}>
-              <label>{t('transaction.details.fiatAtTime')}</label>
-              <p>
-                <span className={`${style.fiat} ${typeClassName}`}>
-                  {transactionInfo.amountAtTime ?
-                    <FiatConversion amount={transactionInfo.amountAtTime} sign={sign} noAction />
-                    :
-                    <FiatConversion noAction />
-                  }
-                </span>
-              </p>
-            </div>
+
+            <TxFiat
+              amount={amount}
+              sign={sign}
+              typeClassName={typeClassName}
+              label={t('transaction.details.fiat')}
+              details
+            />
+            <TxFiat
+              amountAtTime={transactionInfo.amountAtTime}
+              sign={sign}
+              typeClassName={typeClassName}
+              label={t('transaction.details.fiatAtTime')}
+              details
+            />
             <TxAmount
               amount={amount}
               sign={sign}
