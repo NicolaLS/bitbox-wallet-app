@@ -30,6 +30,7 @@ import { TxDate } from './components/date';
 import { TxNote } from './components/note';
 import { AddressOrTxID } from './components/address-or-txid';
 import { TxStatus } from './components/status';
+import { TxAmount } from './components/amount';
 
 type Props = {
   accountCode: accountApi.AccountCode;
@@ -111,15 +112,11 @@ export const Transaction = ({
               <FiatConversion amount={amount} sign={sign} noAction />
             </span>
           </div>
-          <div className={`${parentStyle.currency} ${typeClassName}`}>
-            <span
-              className={`${style.amount} ${style.amountOverflow}`}
-              data-unit={` ${amount.unit}`}>
-              {sign}
-              <Amount amount={amount.amount} unit={amount.unit} />
-              <span className={style.currencyUnit}>&nbsp;{amount.unit}</span>
-            </span>
-          </div>
+          <TxAmount
+            amount={amount}
+            sign={sign}
+            typeClassName={typeClassName}
+          />
           <div className={`${parentStyle.action} ${parentStyle.showOnMedium}`}>
             <button type="button" className={style.action} onClick={showDetails}>
               <ExpandIcon expand={!transactionDialog} />
@@ -188,17 +185,13 @@ export const Transaction = ({
                 </span>
               </p>
             </div>
-            <div className={style.detail}>
-              <label>{t('transaction.details.amount')}</label>
-              <p className={typeClassName}>
-                <span className={style.amount}>
-                  {sign}
-                  <Amount amount={amount.amount} unit={amount.unit} />
-                </span>
-                {' '}
-                <span className={style.currencyUnit}>{transactionInfo.amount.unit}</span>
-              </p>
-            </div>
+            <TxAmount
+              amount={amount}
+              sign={sign}
+              label={t('transaction.details.amount')}
+              typeClassName={typeClassName}
+              details
+            />
             <div className={style.detail}>
               <label>{t('transaction.fee')}</label>
               {
