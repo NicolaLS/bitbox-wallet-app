@@ -18,19 +18,17 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import * as accountApi from '../../api/account';
-import { A } from '../anchor/anchor';
-import { Dialog } from '../dialog/dialog';
-import { Amount } from '../../components/amount/amount';
+import { AddressOrTxID } from './components/address-or-txid';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
 import { Arrow } from './components/arrow';
 import { TxDate } from './components/date';
 import { TxNote } from './components/note';
-import { AddressOrTxID } from './components/address-or-txid';
 import { TxStatus } from './components/status';
 import { TxAmount } from './components/amount';
 import { ShowDetailsButton } from './components/show-details-button';
 import { TxFiat } from './components/fiat';
+import { TxDetails } from './components/details';
 
 type Props = {
   accountCode: accountApi.AccountCode;
@@ -55,19 +53,6 @@ export const Transaction = ({
 }: Props) => {
   const { i18n, t } = useTranslation();
   const [transactionDialog, setTransactionDialog] = useState<boolean>(false);
-  const [transactionInfo, setTransactionInfo] = useState<accountApi.ITransaction>();
-
-  const showDetails = () => {
-    accountApi.getTransaction(accountCode, internalID).then(transaction => {
-      if (!transaction) {
-        console.error('Unable to retrieve transaction ' + internalID);
-        return null;
-      }
-      setTransactionInfo(transaction);
-      setTransactionDialog(true);
-    })
-      .catch(console.error);
-  };
 
   const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
   const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
@@ -96,7 +81,7 @@ export const Transaction = ({
             />
           )}
           <ShowDetailsButton
-            onClick={showDetails}
+            onClick={() => setTransactionDialog(true)}
             expand={!transactionDialog}
             hideOnMedium
           />
@@ -118,161 +103,28 @@ export const Transaction = ({
             typeClassName={typeClassName}
           />
           <ShowDetailsButton
-            onClick={showDetails}
+            onClick={() => setTransactionDialog(true)}
             expand={!transactionDialog}
           />
         </div>
       </div>
-      {/*
-        Amount and Confirmations info are displayed using props data
-        instead of transactionInfo because they are live updated.
-      */}
-      <Dialog
+      <TxDetails
         open={transactionDialog}
-        title={t('transaction.details.title')}
         onClose={() => setTransactionDialog(false)}
-        slim
-        medium>
-        {transactionInfo && (
-          <>
-            <TxNote
-              accountCode={accountCode}
-              internalID={internalID}
-              note={note}
-              details
-            />
-            <Arrow
-              txStatus={status}
-              txType={type}
-              label={t('transaction.details.type')}
-              details
-            />
-            <div className={style.detail}>
-              <label>{t('transaction.confirmation')}</label>
-              <p>{numConfirmations}</p>
-            </div>
-
-            <TxStatus
-              status={status}
-              numConfirmations={numConfirmations}
-              numConfirmationsComplete={numConfirmationsComplete}
-              details
-            />
-            <TxDate
-              time={time}
-              label={t('transaction.details.date') + ':'}
-              lang={i18n.language}
-              detail
-            />
-
-            <TxFiat
-              amount={amount}
-              sign={sign}
-              typeClassName={typeClassName}
-              label={t('transaction.details.fiat')}
-              details
-            />
-            <TxFiat
-              amountAtTime={transactionInfo.amountAtTime}
-              sign={sign}
-              typeClassName={typeClassName}
-              label={t('transaction.details.fiatAtTime')}
-              details
-            />
-            <TxAmount
-              amount={amount}
-              sign={sign}
-              label={t('transaction.details.amount')}
-              typeClassName={typeClassName}
-              details
-            />
-            <div className={style.detail}>
-              <label>{t('transaction.fee')}</label>
-              {
-                transactionInfo.fee && transactionInfo.fee.amount ? (
-                  <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>
-                    <Amount amount={transactionInfo.fee.amount} unit={transactionInfo.fee.unit} />
-                    {' '}
-                    <span className={style.currencyUnit}>{transactionInfo.fee.unit}</span>
-                  </p>
-                ) : (
-                  <p>---</p>
-                )
-              }
-            </div>
-            <AddressOrTxID
-              label={t('transaction.details.address')}
-              addresses={transactionInfo.addresses}
-              detail
-            />
-            {
-              transactionInfo.gas ? (
-                <div className={style.detail}>
-                  <label>{t('transaction.gas')}</label>
-                  <p>{transactionInfo.gas}</p>
-                </div>
-              ) : null
-            }
-            {
-              transactionInfo.nonce !== null ? (
-                <div className={style.detail}>
-                  <label>Nonce</label>
-                  <p>{transactionInfo.nonce}</p>
-                </div>
-              ) : null
-            }
-            {
-              transactionInfo.weight ? (
-                <div className={style.detail}>
-                  <label>{t('transaction.weight')}</label>
-                  <p>
-                    {transactionInfo.weight}
-                    {' '}
-                    <span className={style.currencyUnit}>WU</span>
-                  </p>
-                </div>
-              ) : null
-            }
-            {
-              transactionInfo.vsize ? (
-                <div className={style.detail}>
-                  <label>{t('transaction.vsize')}</label>
-                  <p>
-                    {transactionInfo.vsize}
-                    {' '}
-                    <span className={style.currencyUnit}>b</span>
-                  </p>
-                </div>
-              ) : null
-            }
-            {
-              transactionInfo.size ? (
-                <div className={style.detail}>
-                  <label>{t('transaction.size')}</label>
-                  <p>
-                    {transactionInfo.size}
-                    {' '}
-                    <span className={style.currencyUnit}>b</span>
-                  </p>
-                </div>
-              ) : null
-            }
-
-            <AddressOrTxID
-              label={t('transaction.explorer')}
-              txid={transactionInfo.txID}
-              detail
-            />
-            <div className={`${style.detail} flex-center`}>
-              <A
-                href={explorerURL + transactionInfo.txID}
-                title={`${t('transaction.explorerTitle')}\n${explorerURL}${transactionInfo.txID}`}>
-                {t('transaction.explorerTitle')}
-              </A>
-            </div>
-          </>
-        )}
-      </Dialog>
+        accountCode={accountCode}
+        internalID={internalID}
+        note={note}
+        status={status}
+        type={type}
+        numConfirmations={numConfirmations}
+        numConfirmationsComplete={numConfirmationsComplete}
+        time={time}
+        amount={amount}
+        sign={sign}
+        typeClassName={typeClassName}
+        feeRatePerKb={feeRatePerKb}
+        explorerURL={explorerURL}
+      />
     </div>
   );
 };
