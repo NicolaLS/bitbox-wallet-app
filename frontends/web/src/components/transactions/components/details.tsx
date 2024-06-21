@@ -12,6 +12,7 @@ import { TxFiat } from './fiat';
 import { Dialog } from '../../dialog/dialog';
 import style from '../transaction.module.css';
 import { useEffect, useRef } from 'react';
+import { TxDetail } from './tx-detail';
 
 type TProps = {
   open: boolean;
@@ -85,11 +86,9 @@ export const TxDetails = ({
             label={t('transaction.details.type')}
             details
           />
-          <div className={style.detail}>
-            <label>{t('transaction.confirmation')}</label>
-            <p>{numConfirmations}</p>
-          </div>
-
+          <TxDetail label={t('transaction.confirmation')}>
+            {numConfirmations}
+          </TxDetail>
           <TxStatus
             status={status}
             numConfirmations={numConfirmations}
@@ -124,8 +123,7 @@ export const TxDetails = ({
             typeClassName={typeClassName}
             details
           />
-          <div className={style.detail}>
-            <label>{t('transaction.fee')}</label>
+          <TxDetail label={t('transaction.fee')}>
             {
               transactionInfo.current.fee && transactionInfo.current.fee.amount ? (
                 <p title={feeRatePerKb.amount ? feeRatePerKb.amount + ' ' + feeRatePerKb.unit + '/Kb' : ''}>
@@ -137,63 +135,47 @@ export const TxDetails = ({
                 <p>---</p>
               )
             }
-          </div>
+          </TxDetail>
           <AddressOrTxID
             label={t('transaction.details.address')}
             addresses={transactionInfo.current.addresses}
             detail
           />
-          {
-            transactionInfo.current.gas ? (
-              <div className={style.detail}>
-                <label>{t('transaction.gas')}</label>
-                <p>{transactionInfo.current.gas}</p>
-              </div>
-            ) : null
+          { transactionInfo.current.gas ? (
+            <TxDetail label={t('transaction.gas')}>
+              {transactionInfo.current.gas}
+            </TxDetail>
+          ) : (null)
           }
-          {
-            transactionInfo.current.nonce !== null ? (
-              <div className={style.detail}>
-                <label>Nonce</label>
-                <p>{transactionInfo.current.nonce}</p>
-              </div>
-            ) : null
+          { transactionInfo.current.nonce ? (
+            <TxDetail label="Nonce">
+              {transactionInfo.current.nonce}
+            </TxDetail>
+          ) : (null)
           }
-          {
-            transactionInfo.current.weight ? (
-              <div className={style.detail}>
-                <label>{t('transaction.weight')}</label>
-                <p>
-                  {transactionInfo.current.weight}
-                  {' '}
-                  <span className={style.currencyUnit}>WU</span>
-                </p>
-              </div>
-            ) : null
+          { transactionInfo.current.weight ? (
+            <TxDetail label={t('transaction.weight')}>
+              {transactionInfo.current.weight}
+              {' '}
+              <span className={style.currencyUnit}>WU</span>
+            </TxDetail>
+          ) : (null)
           }
-          {
-            transactionInfo.current.vsize ? (
-              <div className={style.detail}>
-                <label>{t('transaction.vsize')}</label>
-                <p>
-                  {transactionInfo.current.vsize}
-                  {' '}
-                  <span className={style.currencyUnit}>b</span>
-                </p>
-              </div>
-            ) : null
+          { transactionInfo.current.vsize ? (
+            <TxDetail label={t('transaction.vsize')}>
+              {transactionInfo.current.vsize}
+              {' '}
+              <span className={style.currencyUnit}>b</span>
+            </TxDetail>
+          ) : (null)
           }
-          {
-            transactionInfo.current.size ? (
-              <div className={style.detail}>
-                <label>{t('transaction.size')}</label>
-                <p>
-                  {transactionInfo.current.size}
-                  {' '}
-                  <span className={style.currencyUnit}>b</span>
-                </p>
-              </div>
-            ) : null
+          { transactionInfo.current.size ? (
+            <TxDetail label={t('transaction.size')}>
+              {transactionInfo.current.size}
+              {' '}
+              <span className={style.currencyUnit}>b</span>
+            </TxDetail>
+          ) : (null)
           }
           <AddressOrTxID
             label={t('transaction.explorer')}
