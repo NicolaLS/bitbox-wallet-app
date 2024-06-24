@@ -433,7 +433,8 @@ func (transactions *Transactions) txInfo(
 	var txType accounts.TxType
 	var feeP *coin.Amount
 	var feeRatePerKbP *btcutil.Amount
-	if allInputsOurs {
+	switch {
+	case allInputsOurs:
 		feeValue := sumOurInputs - sumAllOutputs
 		fee := coin.NewAmountFromInt64(int64(feeValue))
 		feeP = &fee
@@ -449,21 +450,24 @@ func (transactions *Transactions) txInfo(
 			txType = accounts.TxTypeSend
 			result = sumAllOutputs - sumOurReceive - sumOurChange
 		}
-	} else {
-		// If none of the inputs are ours, money was sent from external to our wallet.
-		// If some input are ours, we determine the direction by whether the tx increases or
-		// decreases our balance.
+	case sumOurInputs > 0:
+		// If some input are ours, we can't determine the direction, and treat the tx. as a
+		// collaborative tx. that either increases or decreases our balance.
 		result = sumOurReceive + sumOurChange - sumOurInputs
+		addresses = sendAddresses
 		if result >= 0 {
-			txType = accounts.TxTypeReceive
-			addresses = receiveAddresses
+			txType = accounts.TxTypeCollaborativeReceive
 		} else {
-			txType = accounts.TxTypeSend
-			addresses = sendAddresses
+			txType = accounts.TxTypeCollaborativeSend
 			result = -result
 		}
-
+	default:
+		// If none of the inputs are ours, money was sent from external to our wallet.
+		result = sumOurReceive
+		txType = accounts.TxTypeReceive
+		addresses = receiveAddresses
 	}
+
 	numConfirmations := 0
 	if txInfo.Height > 0 && transactions.headersTipHeight > 0 {
 		numConfirmations = transactions.headersTipHeight - txInfo.Height + 1

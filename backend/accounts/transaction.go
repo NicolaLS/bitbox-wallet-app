@@ -36,6 +36,12 @@ const (
 	TxTypeSend TxType = "send"
 	// TxTypeSendSelf is a tx from out account to our account.
 	TxTypeSendSelf TxType = "sendSelf"
+	// TxTypeCollaborativeSend is a tx from our account that contains inputs from other wallets
+	// and decreases our account balance.
+	TxTypeCollaborativeSend TxType = "collaborativeSend"
+	// TxTypeCollaborativeReceive is a tx from our account that contains inputs from other wallets
+	// and increases our account balance.
+	TxTypeCollaborativeReceive TxType = "collaborativeReceive"
 )
 
 // TxStatus is the status of the tx and helps the frontend show the appropriate information.
