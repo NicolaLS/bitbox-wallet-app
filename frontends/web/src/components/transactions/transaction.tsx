@@ -33,16 +33,17 @@ import style from './transaction.module.css';
 type Props = {
   accountCode: accountApi.AccountCode;
   index: number;
+  addressIndex: number;
   explorerURL: string;
 } & accountApi.ITransaction;
 
 export const Transaction = ({
   accountCode,
   index,
+  addressIndex,
   internalID,
   explorerURL,
   type,
-  amount,
   feeRatePerKb,
   numConfirmations,
   numConfirmationsComplete,
@@ -54,6 +55,9 @@ export const Transaction = ({
   const { i18n, t } = useTranslation();
   const [transactionDialog, setTransactionDialog] = useState<boolean>(false);
   const [transactionInfo, setTransactionInfo] = useState<accountApi.ITransaction>();
+
+  const address = addresses[addressIndex].address;
+  const amount = addresses[addressIndex].amount;
 
   const parseTimeShort = (time: string) => {
     const options = {
@@ -114,12 +118,7 @@ export const Transaction = ({
                 {t(type === 'receive' ? 'transaction.tx.received' : 'transaction.tx.sent')}
               </span>
               <span className={style.address}>
-                {addresses[0]}
-                {addresses.length > 1 && (
-                  <span className={style.badge}>
-                    (+{addresses.length - 1})
-                  </span>
-                )}
+                {address}
               </span>
             </div>
           )}
@@ -222,8 +221,8 @@ export const Transaction = ({
               <label>{t('transaction.details.fiatAtTime')}</label>
               <p>
                 <span className={`${style.fiat} ${typeClassName}`}>
-                  { transactionInfo.amountAtTime ?
-                    <FiatConversion amount={transactionInfo.amountAtTime} sign={sign} noAction />
+                  { transactionInfo.addresses[addressIndex].amountAtTime ?
+                    <FiatConversion amount={transactionInfo.addresses[addressIndex].amountAtTime} sign={sign} noAction />
                     :
                     <FiatConversion noAction />
                   }
@@ -238,7 +237,7 @@ export const Transaction = ({
                   <Amount amount={amount.amount} unit={amount.unit}/>
                 </span>
                 {' '}
-                <span className={style.currencyUnit}>{transactionInfo.amount.unit}</span>
+                <span className={style.currencyUnit}>{transactionInfo.addresses[addressIndex].amount.unit}</span>
               </p>
             </div>
             <div className={style.detail}>
@@ -258,15 +257,13 @@ export const Transaction = ({
             <div className={[style.detail, style.addresses].join(' ')}>
               <label>{t('transaction.details.address')}</label>
               <div className={style.detailAddresses}>
-                { transactionInfo.addresses.map((address) => (
-                  <CopyableInput
-                    key={address}
-                    alignRight
-                    borderLess
-                    flexibleHeight
-                    className={style.detailAddress}
-                    value={address} />
-                )) }
+                <CopyableInput
+                  key={address}
+                  alignRight
+                  borderLess
+                  flexibleHeight
+                  className={style.detailAddress}
+                  value={address} />
               </div>
             </div>
             {

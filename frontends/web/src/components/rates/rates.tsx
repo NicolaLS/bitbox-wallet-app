@@ -49,7 +49,7 @@ export const currenciesWithDisplayName: FiatWithDisplayName[] = [
 ];
 
 type TProvidedProps = {
-    amount?: IAmount;
+    amount?: IAmount | null;
     tableRow?: boolean;
     unstyled?: boolean;
     skipUnit?: boolean;

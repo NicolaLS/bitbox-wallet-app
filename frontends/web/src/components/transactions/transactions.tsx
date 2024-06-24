@@ -59,13 +59,16 @@ export const Transactions = ({
         <div className={style.action}>&nbsp;</div>
       </div>
       { (transactions && transactions.success && transactions.list.length > 0)
-        ? transactions.list.map((props, index) => (
-          <Transaction
-            accountCode={accountCode}
-            key={props.internalID}
-            explorerURL={explorerURL}
-            index={index}
-            {...props} />
+        ? transactions.list.map((tx, index) => (
+          tx.addresses.map((_, addressIndex) => (
+            <Transaction
+              accountCode={accountCode}
+              key={`${tx.internalID}:${addressIndex}`}
+              explorerURL={explorerURL}
+              index={index}
+              addressIndex={addressIndex}
+              {...tx} />
+          ))
         )) : (
           <div className={`flex flex-row flex-center ${style.empty}`}>
             { transactions && !transactions.success ? (
