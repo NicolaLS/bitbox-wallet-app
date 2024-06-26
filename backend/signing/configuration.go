@@ -22,6 +22,7 @@ import (
 	"fmt"
 
 	"github.com/BitBoxSwiss/bitbox-wallet-app/util/errp"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/util/logging"
 	"github.com/btcsuite/btcd/btcec/v2"
 	"github.com/btcsuite/btcd/btcutil/hdkeychain"
 )
@@ -198,6 +199,8 @@ func (configuration *Configuration) Derive(relativeKeypath RelativeKeypath) (*Co
 		}
 
 		derivedPublicKey, err := relativeKeypath.Derive(btc.KeyInfo.ExtendedPublicKey)
+		// TODO: log
+		logging.Get().WithGroup("software").Infof("XPUB USED FOR DERIVED PUBLIC KEY: %s", btc.KeyInfo.ExtendedPublicKey)
 		if err != nil {
 			return nil, err
 		}

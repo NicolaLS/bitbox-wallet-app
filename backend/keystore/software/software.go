@@ -53,6 +53,7 @@ func NewKeystore(
 ) *Keystore {
 	publicKey, _ := master.ECPubKey()
 	hash := sha256.Sum256(publicKey.SerializeCompressed())
+	logging.Get().WithGroup("software").Infof("MASTER KEY SERIALIZED: %s", master)
 	return &Keystore{
 		master:     master,
 		identifier: hex.EncodeToString(hash[:]),
@@ -63,7 +64,7 @@ func NewKeystore(
 // NewKeystoreFromPIN creates a new unique keystore derived from the PIN.
 func NewKeystoreFromPIN(pin string) *Keystore {
 	seed := pbkdf2.Key([]byte(pin), []byte("BitBox"), 64, hdkeychain.RecommendedSeedLen, sha256.New)
-	master, err := hdkeychain.NewMaster(seed, &chaincfg.TestNet3Params)
+	master, err := hdkeychain.NewMaster(seed, &chaincfg.RegressionNetParams)
 	if err != nil {
 		panic(errp.WithStack(err))
 	}
@@ -173,10 +174,12 @@ func (keystore *Keystore) VerifyExtendedPublicKey(coin coin.Coin, configuration 
 func (keystore *Keystore) ExtendedPublicKey(
 	coin coin.Coin, absoluteKeypath signing.AbsoluteKeypath,
 ) (*hdkeychain.ExtendedKey, error) {
+	logging.Get().WithGroup("software").Info("ARE WE EVEN HERE?")
 	extendedPrivateKey, err := absoluteKeypath.Derive(keystore.master)
 	if err != nil {
 		return nil, err
 	}
+	logging.Get().WithGroup("software").Infof("ACCOUNT KEY SERIALIZED: %s", extendedPrivateKey)
 	return extendedPrivateKey.Neuter()
 }
 

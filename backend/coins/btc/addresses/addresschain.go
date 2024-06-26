@@ -37,6 +37,7 @@ type AddressChain struct {
 }
 
 // NewAddressChain creates an address chain starting at m/<chainIndex> from the given configuration.
+// NOTE: This is wrong, chain index is used for change/address segment ????!!!
 func NewAddressChain(
 	accountConfiguration *signing.Configuration,
 	net *chaincfg.Params,

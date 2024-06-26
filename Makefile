@@ -42,7 +42,7 @@ servewallet:
 servewallet-mainnet:
 	go run -mod=vendor ./cmd/servewallet -mainnet
 servewallet-regtest:
-	rm -f appfolder.dev/cache/headers-rbtc.bin && rm -rf appfolder.dev/cache/account-*rbtc* && go run -mod=vendor ./cmd/servewallet -regtest
+	rm -f appfolder.dev/cache/headers-rbtc.bin && rm -rf appfolder.dev/cache/account-*rbtc* && go run -mod=vendor ./cmd/servewallet -regtest > mylog 2>&1
 servewallet-prodservers:
 	go run -mod=vendor ./cmd/servewallet -devservers=false
 servewallet-mainnet-prodservers:

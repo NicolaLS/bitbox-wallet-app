@@ -982,6 +982,7 @@ func (backend *Backend) persistBTCAccountConfig(
 	accountsConfig *config.AccountsConfig,
 ) error {
 	log := backend.log.WithField("code", code)
+	log.Info("BAMBOOZLE")
 	var supportedConfigs []scriptTypeWithKeypath
 	for _, cfg := range configs {
 		if keystore.SupportsAccount(coin, cfg.scriptType) {
@@ -1010,7 +1011,9 @@ func (backend *Backend) persistBTCAccountConfig(
 
 	var signingConfigurations signing.Configurations
 	for _, cfg := range supportedConfigs {
+
 		extendedPublicKey, err := keystore.ExtendedPublicKey(coin, cfg.keypath)
+		log.Infof("AHHHHHHHH HAAAAAAAA XPUB: %s", extendedPublicKey)
 		if err != nil {
 			log.WithError(err).Errorf(
 				"Could not derive xpub at keypath %s", cfg.keypath.Encode())
@@ -1144,6 +1147,7 @@ func (backend *Backend) initPersistedAccounts() {
 		return account.SigningConfigurations.ContainsRootFingerprint(rootFingerprint)
 	}
 
+	// NOTE: I'm quite sure this is not empty at this point! Because there is no logic for that.
 	persistedAccounts := backend.config.AccountsConfig()
 
 	// In this loop, we add all accounts that match the filter, except for the ones whose signing
@@ -1246,6 +1250,7 @@ func (backend *Backend) persistDefaultAccountConfigs(keystore keystore.Keystore,
 
 // maybeAddP2TR adds a taproot subaccount to all Bitcoin accounts if the keystore suports it.
 func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*config.Account) error {
+
 	if !keystore.SupportsUnifiedAccounts() {
 		// This case is true only for the BitBox01 keystore only at the moment, where accounts are
 		// not unified, but subaccounts are added as top-level accounts instead. We won't handle
@@ -1285,12 +1290,15 @@ func (backend *Backend) maybeAddP2TR(keystore keystore.Keystore, accounts []*con
 				}
 				account.SigningConfigurations = append(
 					account.SigningConfigurations,
+					// NOTE: Alrady checked
 					signing.NewBitcoinConfiguration(
 						signing.ScriptTypeP2TR,
 						rootFingerprint,
 						keypath,
 						extendedPublicKey,
 					))
+
+				backend.log.Info("WE USED NEW BITCOIN CONIGURATION")
 				backend.log.WithField("code", account.Code).
 					Info("upgraded account with taproot subaccount")
 			}
