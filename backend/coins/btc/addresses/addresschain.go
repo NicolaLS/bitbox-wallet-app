@@ -80,6 +80,7 @@ func (addresses *AddressChain) addAddress() *AccountAddress {
 	address := NewAccountAddress(
 		addresses.accountConfiguration,
 		signing.NewEmptyRelativeKeypath().Child(addresses.chainIndex, signing.NonHardened).Child(index, signing.NonHardened),
+		addresses.isChange(),
 		addresses.net,
 		addresses.log,
 	)
@@ -125,4 +126,12 @@ func (addresses *AddressChain) EnsureAddresses() ([]*AccountAddress, error) {
 		addedAddresses = append(addedAddresses, addresses.addAddress())
 	}
 	return addedAddresses, nil
+}
+
+// TODO: Comment
+func (addresses *AddressChain) isChange() bool {
+	if addresses.chainIndex != 0 && addresses.chainIndex != 1 {
+		panic("expect chain index to be either 0 or 1")
+	}
+	return addresses.chainIndex == 1
 }

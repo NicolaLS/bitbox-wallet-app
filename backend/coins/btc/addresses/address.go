@@ -38,6 +38,8 @@ type AccountAddress struct {
 	AccountConfiguration *signing.Configuration
 	// Configuration contains the absolute keypath and the extended public keys of the address.
 	Configuration *signing.Configuration
+	// TODO: Doc comment
+	IsChange bool
 
 	// redeemScript stores the redeem script of a BIP16 P2SH output or nil if address type is P2PKH.
 	redeemScript []byte
@@ -49,6 +51,7 @@ type AccountAddress struct {
 func NewAccountAddress(
 	accountConfiguration *signing.Configuration,
 	keyPath signing.RelativeKeypath,
+	isChange bool,
 	net *chaincfg.Params,
 	log *logrus.Entry,
 ) *AccountAddress {
@@ -105,6 +108,7 @@ func NewAccountAddress(
 		Address:              address,
 		AccountConfiguration: accountConfiguration,
 		Configuration:        configuration,
+		IsChange:             isChange,
 		redeemScript:         redeemScript,
 		log:                  log,
 	}

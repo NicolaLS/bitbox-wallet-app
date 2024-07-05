@@ -717,15 +717,7 @@ func (account *Account) Transactions() (accounts.OrderedTransactions, error) {
 	if account.fatalError.Load() {
 		return nil, errp.New("can't call Transactions() after a fatal error")
 	}
-	return account.transactions.Transactions(
-		func(scriptHashHex blockchain.ScriptHashHex) bool {
-			for _, subacc := range account.subaccounts {
-				if subacc.changeAddresses.LookupByScriptHashHex(scriptHashHex) != nil {
-					return true
-				}
-			}
-			return false
-		})
+	return account.transactions.Transactions(account.getAddress)
 }
 
 // GetUnusedReceiveAddresses returns a number of unused addresses. Returns nil if the account is not initialized.
@@ -874,19 +866,14 @@ func (account *Account) SpendableOutputs() []*SpendableOutput {
 		panic(err)
 	}
 	for outPoint, txOut := range utxos {
-		isChange := false
-		for _, subacc := range account.subaccounts {
-			if subacc.changeAddresses.LookupByScriptHashHex(blockchain.NewScriptHashHex(txOut.PkScript)) != nil {
-				isChange = true
-			}
-		}
+		address := account.getAddress(blockchain.NewScriptHashHex(txOut.TxOut.PkScript))
 		result = append(
 			result,
 			&SpendableOutput{
 				OutPoint:        outPoint,
 				SpendableOutput: txOut,
-				Address:         account.getAddress(blockchain.NewScriptHashHex(txOut.TxOut.PkScript)),
-				IsChange:        isChange,
+				Address:         address,
+				IsChange:        address.IsChange,
 			})
 	}
 	return sortByAddresses(result)

@@ -16,6 +16,7 @@ package transactions
 
 import (
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/accounts"
+	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/addresses"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/blockchain"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/headers"
 	"github.com/BitBoxSwiss/bitbox-wallet-app/backend/coins/btc/synchronizer"
@@ -377,7 +378,7 @@ func (transactions *Transactions) outputToAddress(pkScript []byte) string {
 func (transactions *Transactions) txInfo(
 	dbTx DBTxInterface,
 	txInfo *DBTxInfo,
-	isChange func(blockchain.ScriptHashHex) bool) *accounts.TransactionData {
+	getAccountAddress func(blockchain.ScriptHashHex) *addresses.AccountAddress) *accounts.TransactionData {
 	var sumOurInputs btcutil.Amount
 	var result btcutil.Amount
 	allInputsOurs := true
@@ -397,24 +398,17 @@ func (transactions *Transactions) txInfo(
 	receiveAddresses := []accounts.AddressAndAmount{}
 	sendAddresses := []accounts.AddressAndAmount{}
 	allOutputsOurs := true
-	for index, txOut := range txInfo.Tx.TxOut {
+	for _, txOut := range txInfo.Tx.TxOut {
 		sumAllOutputs += btcutil.Amount(txOut.Value)
-		output, err := dbTx.Output(wire.OutPoint{
-			Hash:  txInfo.TxHash,
-			Index: uint32(index),
-		})
-		if err != nil {
-			// TODO
-			transactions.log.WithError(err).Panic("Output() failed")
-		}
+		ourAddress := getAccountAddress(blockchain.NewScriptHashHex(txOut.PkScript))
 		addressAndAmount := accounts.AddressAndAmount{
 			Address: transactions.outputToAddress(txOut.PkScript),
 			Amount:  coin.NewAmountFromInt64(txOut.Value),
-			Ours:    output != nil,
+			Ours:    ourAddress != nil,
 		}
-		if output != nil {
+		if ourAddress != nil {
 			receiveAddresses = append(receiveAddresses, addressAndAmount)
-			if isChange(getScriptHashHex(output)) {
+			if ourAddress.IsChange {
 				sumOurChange += btcutil.Amount(txOut.Value)
 			} else {
 				sumOurReceive += btcutil.Amount(txOut.Value)
@@ -498,7 +492,7 @@ func (transactions *Transactions) txInfo(
 
 // Transactions returns an ordered list of transactions.
 func (transactions *Transactions) Transactions(
-	isChange func(blockchain.ScriptHashHex) bool) (accounts.OrderedTransactions, error) {
+	getAddress func(blockchain.ScriptHashHex) *addresses.AccountAddress) (accounts.OrderedTransactions, error) {
 	transactions.synchronizer.WaitSynchronized()
 	return DBView(transactions.db, func(dbTx DBTxInterface) (accounts.OrderedTransactions, error) {
 		txs := []*accounts.TransactionData{}
@@ -511,7 +505,7 @@ func (transactions *Transactions) Transactions(
 			if err != nil {
 				return nil, err
 			}
-			txs = append(txs, transactions.txInfo(dbTx, txInfo, isChange))
+			txs = append(txs, transactions.txInfo(dbTx, txInfo, getAddress))
 		}
 		return accounts.NewOrderedTransactions(txs), nil
 	})
