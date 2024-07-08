@@ -112,6 +112,7 @@ func (notes *Notes) SetTxNote(txID string, note string) (bool, error) {
 }
 
 // TxNote fetches a note for a transaction. Returns the empty string if no note was found.
+// NOTE: In case the note is identified with txid:number the number MIGHT NOT be the outpoint index.
 func (notes *Notes) TxNote(txID string) string {
 	notes.dataMu.RLock()
 	defer notes.dataMu.RUnlock()
