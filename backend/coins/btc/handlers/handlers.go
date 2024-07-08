@@ -135,20 +135,28 @@ func (handlers *Handlers) formatBTCAmountAsJSON(amount btcutil.Amount, isFee boo
 	return handlers.formatAmountAsJSON(coin.NewAmountFromInt64(int64(amount)), isFee)
 }
 
+// AddressAndAmount holds an address and the corresponding amount of a transaction output.
+type AddressAndAmount struct {
+	Address      string          `json:"address"`
+	Amount       FormattedAmount `json:"amount"`
+	AmountAtTime FormattedAmount `json:"amountAtTime"`
+	Ours         bool            `json:"ours"`
+}
+
 // Transaction is the info returned per transaction by the /transactions and /transaction endpoint.
 type Transaction struct {
-	TxID                     string            `json:"txID"`
-	InternalID               string            `json:"internalID"`
-	NumConfirmations         int               `json:"numConfirmations"`
-	NumConfirmationsComplete int               `json:"numConfirmationsComplete"`
-	Type                     string            `json:"type"`
-	Status                   accounts.TxStatus `json:"status"`
-	Amount                   FormattedAmount   `json:"amount"`
-	AmountAtTime             *FormattedAmount  `json:"amountAtTime"`
-	Fee                      FormattedAmount   `json:"fee"`
-	Time                     *string           `json:"time"`
-	Addresses                []string          `json:"addresses"`
-	Note                     string            `json:"note"`
+	TxID                     string             `json:"txID"`
+	InternalID               string             `json:"internalID"`
+	NumConfirmations         int                `json:"numConfirmations"`
+	NumConfirmationsComplete int                `json:"numConfirmationsComplete"`
+	Type                     string             `json:"type"`
+	Status                   accounts.TxStatus  `json:"status"`
+	Amount                   FormattedAmount    `json:"amount"`
+	AmountAtTime             *FormattedAmount   `json:"amountAtTime"`
+	Fee                      FormattedAmount    `json:"fee"`
+	Time                     *string            `json:"time"`
+	Addresses                []AddressAndAmount `json:"addresses"`
+	Note                     string             `json:"note"`
 
 	// BTC specific fields.
 	VSize        int64           `json:"vsize"`
@@ -188,9 +196,23 @@ func (handlers *Handlers) getTxInfoJSON(txInfo *accounts.TransactionData, detail
 		formattedTime = &t
 	}
 
-	addresses := []string{}
+	var amountAtTimePerAddress *FormattedAmount
+	addresses := []AddressAndAmount{}
 	for _, addressAndAmount := range txInfo.Addresses {
-		addresses = append(addresses, addressAndAmount.Address)
+		if txInfo.Timestamp != nil {
+			amountAtTimePerAddress = handlers.formatAmountAtTimeAsJSON(txInfo.Amount, txInfo.Timestamp)
+		}
+
+		addrAndAmt := AddressAndAmount{
+			Address: addressAndAmount.Address,
+			Amount:  handlers.formatAmountAsJSON(addressAndAmount.Amount, false),
+		}
+
+		if detail {
+			addrAndAmt.AmountAtTime = *amountAtTimePerAddress
+			addrAndAmt.Ours = addressAndAmount.Ours
+		}
+		addresses = append(addresses, addrAndAmt)
 	}
 	txInfoJSON := Transaction{
 		TxID:                     txInfo.TxID,
