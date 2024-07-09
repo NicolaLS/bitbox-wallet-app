@@ -29,6 +29,22 @@ import { TxStatusDetail } from './status';
 import { TxDetailCopyableValues } from './address-or-txid';
 import parentStyle from '@/components/transactions/transaction.module.css';
 
+const getAddresses = (txInfo: ITransaction, idx: number | null) => {
+  // TODO:  Actually this kind of the wrong place for the todo label but I should figure out if we
+  // want to display only our own address no matter if its a collaborative tx or not, or in case of
+  // collaborative tx. we just show all output addresses ? Consider:
+  // A) Pay someone using a coinjoin (one input ours, many other inputs -> many outputs, none ours.
+  // -> we have no idea what output(s) we paid..only the user knows but the wallet can't really know.
+  // -> it does really not make sense to just dump all of the addresses, just say "not assignable" or something like this.
+  // B) Participate in coin join (one input ours, maybe a change output, -> many output one output ours)
+  // -> the wallet could infer that this was a coinjoin and that only our output is relevant here.
+  // -> but this would be a guess...technically we don't know who paid who so maybe just do the same as above ?
+  if (!idx) {
+    return txInfo.addresses.map(addressAndAmount => addressAndAmount.address);
+  }
+  return [txInfo.addresses[idx].address];
+};
+
 type TProps = {
   open: boolean;
   onClose: () => void;
@@ -44,6 +60,7 @@ type TProps = {
   sign: string;
   typeClassName: string;
   explorerURL: string;
+  addressIndex: number | null;
 }
 
 export const TxDetailsDialog = ({
@@ -61,6 +78,7 @@ export const TxDetailsDialog = ({
   sign,
   typeClassName,
   explorerURL,
+  addressIndex
 }: TProps) => {
   const { t } = useTranslation();
 
@@ -141,7 +159,7 @@ export const TxDetailsDialog = ({
           }
           <TxDetailCopyableValues
             label={t('transaction.details.address')}
-            values={transactionInfo.addresses}
+            values={getAddresses(transactionInfo, addressIndex)}
           />
           {
             transactionInfo.gas ? (

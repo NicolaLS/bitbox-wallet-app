@@ -16,7 +16,7 @@
 
 import type { ITransaction } from '@/api/account';
 import { Warning } from '@/components/icon/icon';
-import { ArrowIn, ArrowOut, ArrowSelf } from './icons';
+import { ArrowCollaborative, ArrowIn, ArrowOut, ArrowSelf } from './icons';
 
 type TProps = Pick<ITransaction, 'status' | 'type'>;
 
@@ -30,5 +30,8 @@ export const Arrow = ({ status, type }: TProps) => {
   if (type === 'send') {
     return <ArrowOut />;
   }
-  return <ArrowSelf />;
+  if (type === 'send_to_self') {
+    return <ArrowSelf />;
+  }
+  return <ArrowCollaborative />;
 };

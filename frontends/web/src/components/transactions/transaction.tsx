@@ -29,13 +29,26 @@ import { TxDetailsDialog } from './components/details';
 import parentStyle from './transactions.module.css';
 import style from './transaction.module.css';
 
-type Props = {
+type TBaseProps = {
   accountCode: accountApi.AccountCode;
   explorerURL: string;
 } & accountApi.ITransaction;
 
+type TPropsNormal = TBaseProps & {
+  addressIndex: number;
+  type: 'send' | 'receive' | 'send_to_self';
+}
+
+type TPropsCollaborative = TBaseProps & {
+  addressIndex: null;
+  type: 'collaborative_send' | 'collaborative_receive';
+}
+
+type TProps = TPropsNormal | TPropsCollaborative;
+
 export const Transaction = ({
   accountCode,
+  addressIndex,
   internalID,
   explorerURL,
   type,
@@ -46,12 +59,13 @@ export const Transaction = ({
   addresses,
   status,
   note = '',
-}: Props) => {
+}: TProps) => {
   const { t } = useTranslation();
   const [transactionDialog, setTransactionDialog] = useState<boolean>(false);
 
   const sign = ((type === 'send') && '−') || ((type === 'receive') && '+') || '';
-  const typeClassName = (status === 'failed' && style.failed) || (type === 'send' && style.send) || (type === 'receive' && style.receive) || '';
+  // TODO: Fix this mess.
+  const typeClassName = (status === 'failed' && style.failed) || ((type === 'send' || type === 'collaborative_send') && style.send) || ((type === 'receive' || type === 'collaborative_receive') && style.receive) || '';
 
   return (
     <div className={style.container}>
@@ -70,11 +84,12 @@ export const Transaction = ({
                 {note}
               </span>
             </div>
-          ) : (
+          ) : (addressIndex ? (
             <TxAddress
               label={t(type === 'receive' ? 'transaction.tx.received' : 'transaction.tx.sent')}
-              addresses={addresses}
+              addresses={[addresses[addressIndex].address]}
             />
+          ) : ('todo-translate: Collaborative:')
           )}
           <ShowDetailsButton
             onClick={() => setTransactionDialog(true)}
@@ -123,6 +138,7 @@ export const Transaction = ({
         sign={sign}
         typeClassName={typeClassName}
         explorerURL={explorerURL}
+        addressIndex={addressIndex}
       />
     </div>
   );

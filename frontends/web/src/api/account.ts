@@ -216,8 +216,15 @@ export const getBalance = (code: AccountCode): Promise<IBalance> => {
   return apiGet(`account/${code}/balance`);
 };
 
+export interface IAddressAndAmount {
+    address: string;
+    amount: IAmount;
+    amountAtTime: IAmount | null;
+    ours: boolean | null;
+}
+
 export interface ITransaction {
-    addresses: string[];
+    addresses: IAddressAndAmount[];
     amount: IAmount;
     amountAtTime: IAmount | null;
     fee: IAmount;
@@ -231,7 +238,7 @@ export interface ITransaction {
     size: number;
     status: 'complete' | 'pending' | 'failed';
     time: string | null;
-    type: 'send' | 'receive' | 'send_to_self';
+    type: 'send' | 'receive' | 'send_to_self' | 'collaborative_receive' | 'collaborative_send';
     txID: string;
     vsize: number;
     weight: number;

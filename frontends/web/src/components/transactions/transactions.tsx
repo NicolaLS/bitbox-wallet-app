@@ -59,13 +59,34 @@ export const Transactions = ({
         <div className={style.action}>&nbsp;</div>
       </div>
       { (transactions && transactions.success && transactions.list.length > 0)
-        ? transactions.list.map((props, _) => (
-          <Transaction
-            accountCode={accountCode}
-            key={props.internalID}
-            explorerURL={explorerURL}
-            {...props} />
-        )) : (
+        ? transactions.list.map((props, index) => {
+          if (props.type === 'collaborative_send' || props.type === 'collaborative_receive') {
+            return (
+              <Transaction
+                accountCode={accountCode}
+                // Collaborative tx. does not show single address, but all of the addresses.
+                addressIndex={null}
+                key={`${props.internalID}:${index}`}
+                explorerURL={explorerURL}
+                {...props}
+                type={props.type as 'collaborative_send' | 'collaborative_receive'}/>
+            );
+          }
+          return (
+            props.addresses.map((addressAndAmount, idx) => (
+              <Transaction
+                accountCode={accountCode}
+                addressIndex={idx}
+                key={`${props.internalID}:${idx}`}
+                explorerURL={explorerURL}
+                {...props}
+                type={props.type as 'send' | 'receive' | 'send_to_self'}
+                // Use amounts per address.
+                amount={addressAndAmount.amount}
+                amountAtTime={addressAndAmount.amountAtTime} />
+            ))
+          );
+        }) : (
           <div className={`flex flex-row flex-center ${style.empty}`}>
             { transactions && !transactions.success ? (
               <p>{t('transactions.errorLoadTransactions')}</p>
