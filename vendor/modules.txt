@@ -1,4 +1,4 @@
-# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240925080402-a2115fee878e
+# github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240925080402-a2115fee878e => github.com/NicolaLS/bitbox02-api-go v0.0.0-20241003023624-77762fe81248
 ## explicit; go 1.21
 github.com/BitBoxSwiss/bitbox02-api-go/api/bootloader
 github.com/BitBoxSwiss/bitbox02-api-go/api/common
@@ -330,3 +330,4 @@ gopkg.in/yaml.v3
 ## explicit; go 1.17
 rsc.io/tmplfunc
 rsc.io/tmplfunc/internal/parse
+# github.com/BitBoxSwiss/bitbox02-api-go => github.com/NicolaLS/bitbox02-api-go v0.0.0-20241003023624-77762fe81248

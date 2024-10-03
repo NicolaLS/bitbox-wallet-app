@@ -60,3 +60,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	rsc.io/tmplfunc v0.0.3 // indirect
 )
+
+replace github.com/BitBoxSwiss/bitbox02-api-go => github.com/NicolaLS/bitbox02-api-go v0.0.0-20241003023624-77762fe81248

@@ -1,11 +1,11 @@
-github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240925080402-a2115fee878e h1:wEIIFhiZ58RsVjoKfwSBBD0i75uZ7KATOI/elaBWOOY=
-github.com/BitBoxSwiss/bitbox02-api-go v0.0.0-20240925080402-a2115fee878e/go.mod h1:Spf6hQRSylrvdjd7Cv4Tc8rFwlcamJAC8EuA61ARy7U=
 github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519 h1:diVA/i8TJFBl9ZyMNX15KjZBpI2Gu63xQTozu6FsTrA=
 github.com/BitBoxSwiss/block-client-go v0.0.0-20240516081043-0d604acd6519/go.mod h1:SJTiQZU9ggBzVKMni97rpNS9GddPKErndFXNSDrfEGc=
 github.com/DataDog/zstd v1.4.5 h1:EndNeuB0l9syBZhut0wns3gV1hL8zX8LIu6ZiVHWLIQ=
 github.com/DataDog/zstd v1.4.5/go.mod h1:1jcaCB/ufaK+sKp1NBhlGmpz41jOoPQ35bpF36t7BBo=
 github.com/Microsoft/go-winio v0.6.2 h1:F2VQgta7ecxGYO8k3ZZz3RS8fVIXVxONVUPlNERoyfY=
 github.com/Microsoft/go-winio v0.6.2/go.mod h1:yd8OoFMLzJbo9gZq8j5qaps8bJ9aShtEA8Ipt1oGCvU=
+github.com/NicolaLS/bitbox02-api-go v0.0.0-20241003023624-77762fe81248 h1:GlbQKU13RX4bT7N8xql9AqhJ6c+IM8gGJQ0pfGLmNHI=
+github.com/NicolaLS/bitbox02-api-go v0.0.0-20241003023624-77762fe81248/go.mod h1:Spf6hQRSylrvdjd7Cv4Tc8rFwlcamJAC8EuA61ARy7U=
 github.com/VictoriaMetrics/fastcache v1.12.2 h1:N0y9ASrJ0F6h0QaC3o6uJb3NIZ9VKLjCM7NQbSmF7WI=
 github.com/VictoriaMetrics/fastcache v1.12.2/go.mod h1:AmC+Nzz1+3G2eCPapF6UcsnkThDcMsQicp4xDukwJYI=
 github.com/aead/siphash v1.0.1 h1:FwHfE/T45KPKYuuSAKyyvE+oPWcaQ+CUmFW0bPlM+kg=
