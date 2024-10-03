@@ -34,7 +34,7 @@ export const BitBox02 = ({ deviceID, deviceIDs, hasAccounts }: TProps) => {
     })
   );
 
-  if (status !== 'initialized') {
+  if (status !== 'unlocked') {
     return null;
   }
   return <BB02Settings deviceID={deviceID} deviceIDs={deviceIDs} hasAccounts={hasAccounts} />;

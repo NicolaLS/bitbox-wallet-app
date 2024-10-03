@@ -95,7 +95,7 @@ export const Wizard = ({ deviceID }: TProps) => {
     return null;
   }
   // fixes empty main element, happens when after unlocking the device, reason wizard is now always mounted in app.tsx
-  if (appStatus === '' && status === 'initialized') {
+  if (appStatus === '' && status === 'unlocked') {
     return null;
   }
   return (
@@ -105,14 +105,6 @@ export const Wizard = ({ deviceID }: TProps) => {
           key="unlock"
           attestation={attestation} />
       ) : null }
-
-      { (status === 'unpaired' || status === 'pairingFailed') && (
-        <Pairing
-          key="pairing"
-          deviceID={deviceID}
-          attestation={attestation}
-          pairingFailed={status === 'pairingFailed'} />
-      )}
 
       { (!unlockOnly && appStatus === '') && (
         <SetupOptions
@@ -137,31 +129,39 @@ export const Wizard = ({ deviceID }: TProps) => {
       )}
 
       {/* keeping the backups mounted even restoreBackupStatus === 'restore' is not true so it catches potential errors */}
-      { (!unlockOnly && appStatus === 'restore-sdcard' && status !== 'initialized') && (
+      { (!unlockOnly && appStatus === 'restore-sdcard' && status !== 'unlocked') && (
         <RestoreFromSDCard
           key="restore-sdcard"
           deviceID={deviceID}
           onAbort={handleAbort} />
       )}
 
-      { (!unlockOnly && appStatus === 'restore-mnemonic' && status !== 'initialized') && (
+      { (!unlockOnly && appStatus === 'restore-mnemonic' && status !== 'unlocked') && (
         <RestoreFromMnemonic
           key="restore-mnemonic"
           deviceID={deviceID}
           onAbort={handleAbort} />
       )}
 
-      { (appStatus === 'create-wallet' && status === 'initialized') && (
+      { (appStatus === 'create-wallet' && status === 'unlocked') && (
         <CreateWalletSuccess
           key="success"
           backupType={(createOptions?.withMnemonic ? 'mnemonic' : 'sdcard')}
           onContinue={handleGetStarted} />
       )}
-      { (appStatus === 'restore-sdcard' && status === 'initialized') && (
+      { (appStatus === 'restore-sdcard' && status === 'unlocked') && (
         <RestoreFromSDCardSuccess key="backup-success" onContinue={handleGetStarted} />
       )}
-      { (appStatus === 'restore-mnemonic' && status === 'initialized') && (
+      { (appStatus === 'restore-mnemonic' && status === 'unlocked') && (
         <RestoreFromMnemonicSuccess key="backup-mnemonic-success" onContinue={handleGetStarted} />
+      )}
+
+      { (status === 'unpaired' || status === 'pairingFailed') && (
+        <Pairing
+          key="pairing"
+          deviceID={deviceID}
+          attestation={attestation}
+          pairingFailed={status === 'pairingFailed'} />
       )}
     </Main>
   );

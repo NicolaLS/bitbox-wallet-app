@@ -137,7 +137,7 @@ export const restoreFromMnemonic = (
 };
 
 export type TStatus = 'connected'
-  | 'initialized'
+  | 'unlocked'
   | 'pairingFailed'
   | 'require_firmware_upgrade'
   | 'require_app_upgrade'

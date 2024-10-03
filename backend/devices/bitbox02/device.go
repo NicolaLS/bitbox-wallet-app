@@ -77,7 +77,7 @@ func NewDevice(
 		switch ev {
 		case firmware.EventStatusChanged:
 			switch device.Device.Status() {
-			case firmware.StatusInitialized:
+			case firmware.StatusUnlocked:
 				device.fireEvent(event.EventKeystoreAvailable)
 			}
 		}
@@ -111,7 +111,7 @@ func (device *Device) Identifier() string {
 
 // Keystore implements device.Device.
 func (device *Device) Keystore() keystoreInterface.Keystore {
-	if device.Status() != firmware.StatusInitialized {
+	if device.Status() != firmware.StatusUnlocked {
 		return nil
 	}
 	return &keystore{
