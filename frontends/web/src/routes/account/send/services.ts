@@ -19,9 +19,9 @@ import { alertUser } from '@/components/alert/Alert';
 import { i18n } from '@/i18n/i18n';
 
 export type TProposalError = {
-    addressError: string;
-    amountError: string;
-    feeError: string;
+    addressError?: string;
+    amountError?: string;
+    feeError?: string;
 }
 
 export const txProposalErrorHandling = (errorCode?: string) => {
@@ -39,6 +39,9 @@ export const txProposalErrorHandling = (errorCode?: string) => {
     if (errorCode) {
       alertUser(errorCode);
     }
-    return { proposedFee: undefined };
+    // NOTE: for reviews the cotnext always sets proposal to undefined
+    // and we'll use proposal.fee as proposedFee from now on.
+    // thus it will work the same.
+    return undefined;
   }
 };

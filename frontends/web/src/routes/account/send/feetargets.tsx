@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useState, useEffect, useRef, ChangeEvent, useCallback } from 'react';
+import React, { useState, useEffect, useRef, ChangeEvent, useCallback, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLoad } from '@/hooks/api';
 import * as accountApi from '@/api/account';
@@ -24,6 +24,7 @@ import { Input, Select } from '@/components/forms';
 import { Message } from '@/components/message/message';
 import { customFeeUnit, getCoinCode, isEthereumBased } from '@/routes/account/utils';
 import style from './feetargets.module.css';
+import { TxProposalContext } from '@/contexts/TxProposalContext';
 
 type Props = {
     accountCode: accountApi.AccountCode;
@@ -35,7 +36,6 @@ type Props = {
     showCalculatingFeeLabel?: boolean;
     onFeeTargetChange: (code: accountApi.FeeTargetCode) => void;
     onCustomFee: (customFee: string) => void;
-    error?: string;
 }
 
 
@@ -54,8 +54,8 @@ export const FeeTargets = ({
   showCalculatingFeeLabel,
   onFeeTargetChange,
   onCustomFee,
-  error
 }: Props) => {
+  const { errorHandling } = useContext(TxProposalContext);
   const { t } = useTranslation();
   const config = useLoad(getConfig);
   const [feeTarget, setFeeTarget] = useState<string>('');
@@ -185,7 +185,7 @@ export const FeeTargets = ({
                 })}
                 id="proposedFee"
                 placeholder={t('send.fee.customPlaceholder')}
-                error={error}
+                error={errorHandling?.feeError}
                 transparent
                 onInput={handleCustomFee}
                 ref={inputRef}
@@ -225,7 +225,7 @@ export const FeeTargets = ({
         label={t('send.fee.label')}
         id="proposedFee"
         placeholder={t('send.fee.placeholder')}
-        error={error}
+        error={errorHandling?.feeError}
         transparent
         value={proposeFeeText}
       />

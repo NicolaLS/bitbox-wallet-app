@@ -20,6 +20,7 @@ import { TDevices } from '@/api/devices';
 import { RatesContext } from '@/contexts/RatesContext';
 import { findAccount } from '@/routes/account/utils';
 import { Send } from './send';
+import { TxProposalContext } from '@/contexts/TxProposalContext';
 
 type TSendProps = {
     accounts: IAccount[];
@@ -30,6 +31,7 @@ type TSendProps = {
 
 export const SendWrapper = ({ accounts, code, deviceIDs, devices }: TSendProps) => {
   const { defaultCurrency } = useContext(RatesContext);
+  const txProposal = useContext(TxProposalContext);
   const account = findAccount(accounts, code);
   return (
     account ? (

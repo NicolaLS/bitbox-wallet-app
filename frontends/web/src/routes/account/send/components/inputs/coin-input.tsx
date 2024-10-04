@@ -7,8 +7,8 @@ import style from './coin-input.module.css';
 type TProps = {
     balance?: IBalance
     onAmountChange: (amount: string) => void;
-    onSendAllChange: (sendAll: boolean) => void;
-    sendAll: boolean;
+    onSendAllChange: (sendAll: 'yes' | 'no') => void;
+    sendAll: 'yes' | 'no' | undefined;
     amountError?: string;
     proposedAmount?: IAmount;
     amount: string;
@@ -34,7 +34,7 @@ export const CoinInput = ({
       label={balance ? balance.available.unit : t('send.amount.label')}
       id="amount"
       onInput={(e: ChangeEvent<HTMLInputElement>) => onAmountChange(e.target.value)}
-      disabled={sendAll}
+      disabled={sendAll === 'yes'}
       error={amountError}
       value={sendAll ? (proposedAmount ? proposedAmount.amount : '') : amount}
       placeholder={t('send.amount.placeholder')}
@@ -42,8 +42,8 @@ export const CoinInput = ({
         <Checkbox
           label={t(hasSelectedUTXOs ? 'send.maximumSelectedCoins' : 'send.maximum')}
           id="sendAll"
-          onChange={(e: ChangeEvent<HTMLInputElement>) => onSendAllChange(e.target.checked)}
-          checked={sendAll}
+          onChange={(e: ChangeEvent<HTMLInputElement>) => onSendAllChange(e.target.checked ? 'yes' : 'no')}
+          checked={sendAll === 'yes'}
           className={style.maxAmount} />
       }
     />

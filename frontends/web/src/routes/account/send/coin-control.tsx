@@ -14,27 +14,37 @@
  * limitations under the License.
  */
 
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IAccount } from '@/api/account';
 import { getConfig } from '@/utils/config';
 import { Button } from '@/components/forms';
 import { TSelectedUTXOs, UTXOs } from './utxos';
 import { isBitcoinBased } from '../utils';
+import { TxProposalContext } from '@/contexts/TxProposalContext';
 
 type TProps = {
   account: IAccount;
-  onSelectedUTXOsChange: (selectedUTXOs: TSelectedUTXOs) => void;
 }
 
 export const CoinControl = ({
   account,
-  onSelectedUTXOsChange,
 }: TProps) => {
+  const { updateTxInput } = useContext(TxProposalContext);
   const { t } = useTranslation();
 
+  const [selectedUTXOs, setSelectedUTXOs] = useState<TSelectedUTXOs>({});
   const [coinControlEnabled, setCoinControlEnabled] = useState(false);
   const [showUTXODialog, setShowUTXODialog] = useState(false);
+
+  const onSelectedUTXOsChange = (selectedUTXOs: TSelectedUTXOs) => {
+    setSelectedUTXOs(selectedUTXOs);
+  };
+
+  useEffect(() => {
+    updateTxInput('selectedUTXOs', Object.keys(selectedUTXOs));
+  }, [updateTxInput, selectedUTXOs]);
+
 
   useEffect(() => {
     if (isBitcoinBased(account.coinCode)) {

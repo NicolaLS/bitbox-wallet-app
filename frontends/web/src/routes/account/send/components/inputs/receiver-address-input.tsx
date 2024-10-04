@@ -14,15 +14,19 @@
  * limitations under the License.
  */
 
-import { ChangeEvent, useCallback, useContext, useState } from 'react';
+import { ChangeEvent, useCallback, useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getReceiveAddressList } from '@/api/account';
+import { CoinCode, getReceiveAddressList } from '@/api/account';
 import { debug } from '@/utils/env';
 import { DarkModeContext } from '@/contexts/DarkmodeContext';
 import { Input } from '@/components/forms';
 import { QRCodeLight, QRCodeDark } from '@/components/icon';
 import { ScanQRDialog } from '@/routes/account/send/components/dialogs/scan-qr-dialog';
 import style from './receiver-address-input.module.css';
+import { TxProposalContext } from '@/contexts/TxProposalContext';
+import { alertUser } from '@/components/alert/Alert';
+import { isBitcoinBased } from '@/routes/account/utils';
+import { parseExternalBtcAmount } from '@/api/coins';
 
 type TToggleScanQRButtonProps = {
     onClick: () => void;
@@ -30,10 +34,7 @@ type TToggleScanQRButtonProps = {
 
 type TReceiverAddressInputProps = {
     accountCode?: string;
-    addressError?: string;
-    onInputChange: (value: string) => void;
-    recipientAddress: string;
-    parseQRResult: (uri: string) => void;
+    accountCoinCode: CoinCode;
 }
 
 export const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
@@ -46,13 +47,56 @@ export const ScanQRButton = ({ onClick }: TToggleScanQRButtonProps) => {
 
 export const ReceiverAddressInput = ({
   accountCode,
-  addressError,
-  onInputChange,
-  recipientAddress,
-  parseQRResult,
+  accountCoinCode
 }: TReceiverAddressInputProps) => {
   const { t } = useTranslation();
+  const { errorHandling, updateTxInput } = useContext(TxProposalContext);
+
   const [activeScanQR, setActiveScanQR] = useState(false);
+  const [address, setAddress] = useState('');
+  const [amount, setAmount] = useState('');
+
+  const parseQRResult = async (uri: string) => {
+    let qrAddress;
+    let qrAmount = '';
+    try {
+      const url = new URL(uri);
+      if (url.protocol !== 'bitcoin:' && url.protocol !== 'litecoin:' && url.protocol !== 'ethereum:') {
+        alertUser(t('invalidFormat'));
+        return;
+      }
+      qrAddress = url.pathname;
+      if (isBitcoinBased(accountCoinCode)) {
+        qrAmount = url.searchParams.get('amount') || '';
+      }
+    } catch {
+      qrAddress = uri;
+    }
+    if (qrAmount) {
+      if (accountCoinCode === 'btc' || accountCoinCode === 'tbtc') {
+        const result = await parseExternalBtcAmount(qrAmount);
+        if (result.success) {
+          // Important to always show proposal.amount!!
+          // FIXME: MAKE SURE TO USE proposal.address, proposal.amount
+          // etc. in sub-components. I think I have this wrong in a few.
+          // I MEANT txInput.XX txInput.amount NOT proposal lol.
+          setAmount(result.amount);
+        } else {
+          // TODO: Add updateErrors to the context, so other compnents
+          // can edit the error like below!
+          // updateState['amountError'] = this.props.t('send.error.invalidAmount');
+          return;
+        }
+      } else {
+        setAmount(qrAmount);
+      }
+    }
+    setAddress(qrAddress);
+  };
+
+  const onReceiverAddressInputChange = useCallback((recipientAddress: string) => {
+    setAddress(recipientAddress);
+  }, []);
 
   const handleSendToSelf = useCallback(async () => {
     if (!accountCode) {
@@ -61,16 +105,21 @@ export const ReceiverAddressInput = ({
     try {
       const receiveAddresses = await getReceiveAddressList(accountCode)();
       if (receiveAddresses && receiveAddresses.length > 0 && receiveAddresses[0].addresses.length > 1) {
-        onInputChange(receiveAddresses[0].addresses[0].address);
+        onReceiverAddressInputChange(receiveAddresses[0].addresses[0].address);
       }
     } catch (e) {
       console.error(e);
     }
-  }, [accountCode, onInputChange]);
+  }, [accountCode, onReceiverAddressInputChange]);
 
   const toggleScanQR = () => {
     setActiveScanQR(activeScanQR => !activeScanQR);
   };
+
+  useEffect(() => {
+    updateTxInput('address', address);
+    updateTxInput('address', amount);
+  }, [updateTxInput, address, amount]);
 
   return (
     <>
@@ -85,9 +134,9 @@ export const ReceiverAddressInput = ({
         label={t('send.address.label')}
         placeholder={t('send.address.placeholder')}
         id="recipientAddress"
-        error={addressError}
-        onInput={(e: ChangeEvent<HTMLInputElement>) => onInputChange(e.target.value)}
-        value={recipientAddress}
+        error={errorHandling?.addressError}
+        onInput={(e: ChangeEvent<HTMLInputElement>) => onReceiverAddressInputChange(e.target.value)}
+        value={address}
         className={style.inputWithIcon}
         labelSection={debug ? (
           <span id="sendToSelf" className={style.action} onClick={handleSendToSelf}>
